@@ -3,12 +3,18 @@ const path = require('node:path');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent
+    ]
+});
+
 
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, 'commands');
 
-// Read command folders, ignoring system files like .DS_Store
 const commandFolders = fs.readdirSync(foldersPath).filter(folder =>
     folder !== '.DS_Store' && fs.statSync(path.join(foldersPath, folder)).isDirectory()
 );
@@ -31,7 +37,6 @@ for (const folder of commandFolders) {
     }
 }
 
-// Load event handlers, ignoring .DS_Store
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js') && file !== '.DS_Store');
 

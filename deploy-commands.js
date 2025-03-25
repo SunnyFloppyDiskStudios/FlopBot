@@ -6,7 +6,6 @@ const path = require('node:path');
 const commands = [];
 const foldersPath = path.join(__dirname, 'commands');
 
-// Ensure only directories are processed
 const commandFolders = fs.existsSync(foldersPath)
     ? fs.readdirSync(foldersPath).filter(folder =>
         fs.statSync(path.join(foldersPath, folder)).isDirectory()
@@ -16,7 +15,6 @@ const commandFolders = fs.existsSync(foldersPath)
 for (const folder of commandFolders) {
     const commandsPath = path.join(foldersPath, folder);
 
-    // Ensure directory exists before reading
     if (fs.existsSync(commandsPath) && fs.statSync(commandsPath).isDirectory()) {
         const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
@@ -37,10 +35,8 @@ for (const folder of commandFolders) {
     }
 }
 
-// Construct and prepare an instance of the REST module
 const rest = new REST().setToken(token);
 
-// Deploy commands
 (async () => {
     try {
         console.log(`Started refreshing ${commands.length} application (/) commands.`);
