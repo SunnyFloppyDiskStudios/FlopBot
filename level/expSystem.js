@@ -56,7 +56,7 @@ async function assignRole(guild, userId, member) {
 }
 
 async function sendLevelUpMessage(guild, userId, level) {
-    const levelUpChannelID = '1299836842291499141'; // Replace with your actual channel ID
+    const levelUpChannelID = '1299836842291499141';
     let channel = guild.channels.cache.get(levelUpChannelID);
 
     if (!channel) {
