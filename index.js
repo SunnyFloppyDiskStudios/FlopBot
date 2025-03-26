@@ -2,6 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
+const { addXP, assignRole } = require('./level/expSystem');
 
 const client = new Client({
     intents: [
@@ -49,5 +50,20 @@ for (const file of eventFiles) {
         client.on(event.name, (...args) => event.execute(...args));
     }
 }
+
+
+client.on('messageCreate', async (message) => {
+    if (message.author.bot) return; // Ignore bot messages
+
+    const userId = message.author.id;
+
+    // Add XP and check if the user leveled up
+    const xpAdded = addXP(userId);
+    if (xpAdded) {
+        // Assign role based on new level
+        const member = await message.guild.members.fetch(userId);
+        await assignRole(message.guild, userId, member);
+    }
+});
 
 client.login(token);
