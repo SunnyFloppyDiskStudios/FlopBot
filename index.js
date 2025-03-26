@@ -2,7 +2,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
+
 const { addXP, assignRole } = require('./level/expSystem');
+const messageFetcher = require('./messageFetcher');
 
 const client = new Client({
     intents: [
@@ -11,7 +13,6 @@ const client = new Client({
         GatewayIntentBits.MessageContent
     ]
 });
-
 
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, 'commands');
@@ -51,17 +52,17 @@ for (const file of eventFiles) {
     }
 }
 
-
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
     const userId = message.author.id;
-
     const xpAdded = addXP(userId);
     if (xpAdded) {
         const member = await message.guild.members.fetch(userId);
         await assignRole(message.guild, userId, member);
     }
+
+    await messageFetcher.execute(message);
 });
 
 client.login(token);
