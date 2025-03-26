@@ -53,14 +53,12 @@ for (const file of eventFiles) {
 
 
 client.on('messageCreate', async (message) => {
-    if (message.author.bot) return; // Ignore bot messages
+    if (message.author.bot) return;
 
     const userId = message.author.id;
 
-    // Add XP and check if the user leveled up
     const xpAdded = addXP(userId);
     if (xpAdded) {
-        // Assign role based on new level
         const member = await message.guild.members.fetch(userId);
         await assignRole(message.guild, userId, member);
     }
