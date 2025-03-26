@@ -29,14 +29,34 @@ module.exports = {
             const linkedMessage = await channel.messages.fetch(ids.messageId).catch(() => null);
             if (!linkedMessage) continue;
 
-            const filteredContent = linkedMessage.content.replace(/https?:\/\/\S+\.(jpg|jpeg|png|gif|webp)/gi, '[Image removed]');
+            const allowedImageHosts = ["cdn.discordapp.com", "tenor.com"];
+            const imageUrls = linkedMessage.content.match(/https?:\/\/\S+/g) || [];
+
+            let embedImageUrl = null;
+            for (const imgUrl of imageUrls) {
+                try {
+                    const urlObj = new URL(imgUrl);
+                    if (allowedImageHosts.includes(urlObj.hostname)) {
+                        embedImageUrl = imgUrl;
+                        break;
+                    }
+                } catch (e) {
+                    continue;
+                }
+            }
+
+            const filteredContent = linkedMessage.content.replace(/https?:\/\/\S+\.(jpg|jpeg|png|gif|webp)/gi, "");
 
             const embed = new EmbedBuilder()
-                .setColor(0x6b5fff)
+                .setColor(0x6B5FFF)
                 .setAuthor({ name: linkedMessage.author.tag, iconURL: linkedMessage.author.displayAvatarURL() })
                 .setDescription(filteredContent || '*[No text content]*')
                 .setTimestamp(linkedMessage.createdAt)
                 .setFooter({ text: `From #${channel.name}` });
+
+            if (embedImageUrl) {
+                embed.setImage(embedImageUrl);
+            }
 
             const currentChannelPermissions = message.channel.permissionsFor(message.client.user);
             if (!currentChannelPermissions.has(PermissionsBitField.Flags.SendMessages)) {

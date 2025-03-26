@@ -15,6 +15,10 @@ const levelRoles = {
 const cooldowns = new Map();
 const COOLDOWN_TIME = 3000;
 
+function expRequired(level) {
+    return Math.floor(100 * Math.pow(1.5, level - 1));
+}
+
 function getUserXP(userId) {
     return xpData[userId] || { xp: 0, level: 1 };
 }
@@ -25,17 +29,23 @@ function addXP(userId) {
         return false;
     }
     cooldowns.set(userId, now);
+
     if (!xpData[userId]) {
         xpData[userId] = { xp: 0, level: 1 };
     }
     xpData[userId].xp += 1;
 
-    const nextLevel = Math.floor(xpData[userId].xp / 100);
-    if (nextLevel > xpData[userId].level) {
-        xpData[userId].level = nextLevel;
-        fs.writeFileSync(xpFilePath, JSON.stringify(xpData, null, 2));
-        return true; // Level-up occurred
+    let currentLevel = xpData[userId].level;
+    while (xpData[userId].xp >= expRequired(currentLevel + 1)) {
+        currentLevel++;
     }
+
+    if (currentLevel > xpData[userId].level) {
+        xpData[userId].level = currentLevel;
+        fs.writeFileSync(xpFilePath, JSON.stringify(xpData, null, 2));
+        return true;
+    }
+
     fs.writeFileSync(xpFilePath, JSON.stringify(xpData, null, 2));
     return false;
 }

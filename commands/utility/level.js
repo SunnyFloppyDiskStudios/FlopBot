@@ -1,6 +1,10 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { getUserXP } = require('../../level/expSystem');
 
+function expRequired(level) {
+    return Math.floor(100 * Math.pow(1.5, level - 1));
+}
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('level')
@@ -12,7 +16,8 @@ module.exports = {
             const userXP = await getUserXP(userId);
 
             if (userXP) {
-                await interaction.reply(`Your current level is ${userXP.level} and you have ${userXP.xp} XP.`);
+                const xpForNextLevel = expRequired(userXP.level + 1);
+                await interaction.reply(`You are **level ${userXP.level}**, you have: **${userXP.xp}/${xpForNextLevel} exp**`);
             } else {
                 await interaction.reply('No EXP data found for you.');
             }
