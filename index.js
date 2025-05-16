@@ -65,4 +65,26 @@ client.on('messageCreate', async (message) => {
     await messageFetcher.execute(message);
 });
 
+const moment = require('moment-timezone');
+
+function updateStatus() {
+    const nzTime = moment().tz("Pacific/Auckland").format('LT');
+    client.user.setActivity(`the time: ${nzTime}`, { type: 3 });
+}
+
+client.once('ready', () => {
+    updateStatus();
+
+    const now = new Date();
+    const msUntilNext15 = 15000 - (now.getSeconds() % 15) * 1000;
+
+    setTimeout(() => {
+        updateStatus();
+        setInterval(updateStatus, 15000);
+    }, msUntilNext15);
+});
+
+
+
+
 client.login(token);
